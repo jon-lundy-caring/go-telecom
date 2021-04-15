@@ -4,26 +4,26 @@ import (
 	"fmt"
 )
 
-type EventStatus string
+type ConferenceEventStatus string
 
-var _ Validator = (*EventStatus)(nil)
+var _ Validator = (*ConferenceEventStatus)(nil)
 
 const (
-	StatusConferenceEnd          EventStatus = "conference-end"
-	StatusConferenceStart        EventStatus = "conference-start"
-	StatusParticipantLeave       EventStatus = "participant-leave"
-	StatusParticipantJoin        EventStatus = "participant-join"
-	StatusParticipantMute        EventStatus = "participant-mute"
-	StatusParticipantUnmute      EventStatus = "participant-unmute"
-	StatusParticipantHold        EventStatus = "participant-hold"
-	StatusParticipantUnhold      EventStatus = "participant-unhold"
-	StatusParticipantSpeechStart EventStatus = "participant-speech-start"
-	StatusParticipantSpeechStop  EventStatus = "participant-speech-stop"
-	StatusAnnouncementEnd        EventStatus = "announcement-end"
-	StatusAnnouncementFail       EventStatus = "announcement-fail"
+	StatusConferenceEnd          ConferenceEventStatus = "conference-end"
+	StatusConferenceStart        ConferenceEventStatus = "conference-start"
+	StatusParticipantLeave       ConferenceEventStatus = "participant-leave"
+	StatusParticipantJoin        ConferenceEventStatus = "participant-join"
+	StatusParticipantMute        ConferenceEventStatus = "participant-mute"
+	StatusParticipantUnmute      ConferenceEventStatus = "participant-unmute"
+	StatusParticipantHold        ConferenceEventStatus = "participant-hold"
+	StatusParticipantUnhold      ConferenceEventStatus = "participant-unhold"
+	StatusParticipantSpeechStart ConferenceEventStatus = "participant-speech-start"
+	StatusParticipantSpeechStop  ConferenceEventStatus = "participant-speech-stop"
+	StatusAnnouncementEnd        ConferenceEventStatus = "announcement-end"
+	StatusAnnouncementFail       ConferenceEventStatus = "announcement-fail"
 )
 
-func (es EventStatus) Validate() error {
+func (es ConferenceEventStatus) Validate() error {
 	switch es {
 	case StatusConferenceEnd,
 		StatusConferenceStart,
@@ -42,8 +42,8 @@ func (es EventStatus) Validate() error {
 	return fmt.Errorf("unknown %T value: %s", es, es)
 }
 
-func (es *EventStatus) UnmarshalText(text []byte) (err error) {
-	check := EventStatus(text)
+func (es *ConferenceEventStatus) UnmarshalText(text []byte) (err error) {
+	check := ConferenceEventStatus(text)
 
 	if err := check.Validate(); err != nil {
 		return err
@@ -96,19 +96,19 @@ type ConfrenceCallEvent struct {
 	AccountSID                       string `json:"AccountSid"`
 	SequenceNumber                   uint
 	Timestamp                        TimeRFC1123Z
-	StatusCallbackEvent              EventStatus
-	CallSID                          *string `json:"CallSid,omitempty"`
-	Muted                            *bool `json:",omitempty"`
-	Hold                             *bool `json:",omitempty"`
-	Coaching                         *bool `json:",omitempty"`
-	EndConferenceOnExit              *bool `json:",omitempty"`
-	StartConferenceOnEnter           *bool `json:",omitempty"`
-	CallSIDEndingConference          *string `json:"CallSidEndingConference,omitempty"`
-	ParticipantLabelEndingConference *string `json:",omitempty"`
+	StatusCallbackEvent              ConferenceEventStatus
+	CallSID                          *string                `json:"CallSid,omitempty"`
+	Muted                            *bool                  `json:",omitempty"`
+	Hold                             *bool                  `json:",omitempty"`
+	Coaching                         *bool                  `json:",omitempty"`
+	EndConferenceOnExit              *bool                  `json:",omitempty"`
+	StartConferenceOnEnter           *bool                  `json:",omitempty"`
+	CallSIDEndingConference          *string                `json:"CallSidEndingConference,omitempty"`
+	ParticipantLabelEndingConference *string                `json:",omitempty"`
 	ReasonConferenceEnded            *ReasonConferenceEnded `json:",omitempty"`
-	Reason                           *string `json:",omitempty"`
-	ReasonAnnouncementFailed         *string `json:",omitempty"`
-	AnnounceURL                      *string `json:"AnnounceUrl,omitempty"`
+	Reason                           *string                `json:",omitempty"`
+	ReasonAnnouncementFailed         *string                `json:",omitempty"`
+	AnnounceURL                      *string                `json:"AnnounceUrl,omitempty"`
 }
 
 func (c ConfrenceCallEvent) Validate() error {

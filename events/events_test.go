@@ -2,11 +2,12 @@ package events_test
 
 import (
 	"encoding/json"
-	"events"
 	"net/url"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/jon-lundy-caring/go-telecom/events"
 
 	"github.com/matryer/is"
 )
@@ -39,7 +40,7 @@ func TestConfrenceCallEvent(t *testing.T) {
 			container: func() events.Validator { return &events.ConfrenceCallEvent{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&StatusCallbackEvent=conference-endXX&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSidEndingConference=SID1234&ParticipantLabelEndingConference=PID1234&ReasonConferenceEnded=conference-ended-via-api&Reason=ended+by+host",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-endXX","CallSid":"CA1234","Muted":true,"CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","ReasonConferenceEnded":"conference-ended-via-api","Reason":"ended by host"}`),
-			err:       `unknown events.EventStatus value: conference-endXX`,
+			err:       `unknown events.ConferenceEventStatus value: conference-endXX`,
 		},
 		{
 			container: func() events.Validator { return &events.ConfrenceCallEvent{} },
