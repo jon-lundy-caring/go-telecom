@@ -4,26 +4,62 @@ import (
 	"fmt"
 )
 
-type ConferenceEventStatus string
+/*
 
-var _ Validator = (*ConferenceEventStatus)(nil)
+All Events:
+	ConferenceSid
+	FriendlyName
+	AccountSid
+	SequenceNumber
+	Timestamp
+	StatusCallbackEvent
+
+end:
+	CallSidEndingConference
+	ParticipantLabelEndingConference
+	ReasonConferenceEnded
+	Reason
+
+announcement:
+	CallSid
+	Muted
+	Hold
+	Coaching
+	EndConferenceOnExit
+	StartConferenceOnEnter
+	ReasonAnnouncementFailed
+	AnnounceUrl
+
+
+join leave mute hold speaker
+	CallSid
+	Muted
+	Hold
+	Coaching
+	EndConferenceOnExit
+	StartConferenceOnEnter
+*/
+
+type ConferenceStatus string
+
+var _ Validator = (*ConferenceStatus)(nil)
 
 const (
-	StatusConferenceEnd          ConferenceEventStatus = "conference-end"
-	StatusConferenceStart        ConferenceEventStatus = "conference-start"
-	StatusParticipantLeave       ConferenceEventStatus = "participant-leave"
-	StatusParticipantJoin        ConferenceEventStatus = "participant-join"
-	StatusParticipantMute        ConferenceEventStatus = "participant-mute"
-	StatusParticipantUnmute      ConferenceEventStatus = "participant-unmute"
-	StatusParticipantHold        ConferenceEventStatus = "participant-hold"
-	StatusParticipantUnhold      ConferenceEventStatus = "participant-unhold"
-	StatusParticipantSpeechStart ConferenceEventStatus = "participant-speech-start"
-	StatusParticipantSpeechStop  ConferenceEventStatus = "participant-speech-stop"
-	StatusAnnouncementEnd        ConferenceEventStatus = "announcement-end"
-	StatusAnnouncementFail       ConferenceEventStatus = "announcement-fail"
+	StatusConferenceEnd          ConferenceStatus = "conference-end"
+	StatusConferenceStart        ConferenceStatus = "conference-start"
+	StatusParticipantLeave       ConferenceStatus = "participant-leave"
+	StatusParticipantJoin        ConferenceStatus = "participant-join"
+	StatusParticipantMute        ConferenceStatus = "participant-mute"
+	StatusParticipantUnmute      ConferenceStatus = "participant-unmute"
+	StatusParticipantHold        ConferenceStatus = "participant-hold"
+	StatusParticipantUnhold      ConferenceStatus = "participant-unhold"
+	StatusParticipantSpeechStart ConferenceStatus = "participant-speech-start"
+	StatusParticipantSpeechStop  ConferenceStatus = "participant-speech-stop"
+	StatusAnnouncementEnd        ConferenceStatus = "announcement-end"
+	StatusAnnouncementFail       ConferenceStatus = "announcement-fail"
 )
 
-func (es ConferenceEventStatus) Validate() error {
+func (es ConferenceStatus) Validate() error {
 	switch es {
 	case StatusConferenceEnd,
 		StatusConferenceStart,
@@ -42,8 +78,8 @@ func (es ConferenceEventStatus) Validate() error {
 	return fmt.Errorf("unknown %T value: %s", es, es)
 }
 
-func (es *ConferenceEventStatus) UnmarshalText(text []byte) (err error) {
-	check := ConferenceEventStatus(text)
+func (es *ConferenceStatus) UnmarshalText(text []byte) (err error) {
+	check := ConferenceStatus(text)
 
 	if err := check.Validate(); err != nil {
 		return err
@@ -90,40 +126,80 @@ func (r *ReasonConferenceEnded) UnmarshalText(text []byte) (err error) {
 	return nil
 }
 
-type ConfrenceCallEvent struct {
-	ConferenceSID                    string `json:"ConferenceSid"`
-	FriendlyName                     string
-	AccountSID                       string `json:"AccountSid"`
-	SequenceNumber                   uint
-	Timestamp                        TimeRFC1123Z
-	StatusCallbackEvent              ConferenceEventStatus
-	CallSID                          *string                `json:"CallSid,omitempty"`
-	Muted                            *bool                  `json:",omitempty"`
-	Hold                             *bool                  `json:",omitempty"`
-	Coaching                         *bool                  `json:",omitempty"`
-	EndConferenceOnExit              *bool                  `json:",omitempty"`
-	StartConferenceOnEnter           *bool                  `json:",omitempty"`
-	CallSIDEndingConference          *string                `json:"CallSidEndingConference,omitempty"`
-	ParticipantLabelEndingConference *string                `json:",omitempty"`
-	ReasonConferenceEnded            *ReasonConferenceEnded `json:",omitempty"`
-	Reason                           *string                `json:",omitempty"`
-	ReasonAnnouncementFailed         *string                `json:",omitempty"`
-	AnnounceURL                      *string                `json:"AnnounceUrl,omitempty"`
+type ConfrenceCall struct {
+	ConferenceSID          string `json:"ConferenceSid"`
+	FriendlyName           string
+	AccountSID             string `json:"AccountSid"`
+	SequenceNumber         uint
+	Timestamp              TimeRFC1123Z
+	StatusCallbackEvent    ConferenceStatus
+	CallSID                *string `json:"CallSid,omitempty"`
+	Muted                  *bool   `json:",omitempty"`
+	Hold                   *bool   `json:",omitempty"`
+	Coaching               *bool   `json:",omitempty"`
+	EndConferenceOnExit    *bool   `json:",omitempty"`
+	StartConferenceOnEnter *bool   `json:",omitempty"`
 }
 
-func (c ConfrenceCallEvent) Validate() error {
+func (c ConfrenceCall) Validate() error {
 	switch {
 	case !IsValid(c.StatusCallbackEvent):
 		return fmt.Errorf("event StatusCallbackEvent invalid got='%s'", c.StatusCallbackEvent)
-
-	case c.StatusCallbackEvent == StatusConferenceEnd && c.ReasonConferenceEnded == nil:
-		return fmt.Errorf("event ReasonConferenceEnded empty")
-	case c.StatusCallbackEvent == StatusConferenceEnd && c.ReasonConferenceEnded != nil && !IsValid(c.ReasonConferenceEnded):
-		return fmt.Errorf("event ReasonConferenceEnded invalid got='%s'", *c.ReasonConferenceEnded)
 	}
 
 	return nil
 }
 
-type RecordingStatus struct {
+type ConfrenceCallEnd struct {
+	ConferenceSID                    string `json:"ConferenceSid"`
+	FriendlyName                     string
+	AccountSID                       string `json:"AccountSid"`
+	SequenceNumber                   uint
+	Timestamp                        TimeRFC1123Z
+	StatusCallbackEvent              ConferenceStatus
+	CallSIDEndingConference          string `json:"CallSidEndingConference"`
+	ParticipantLabelEndingConference string
+	ReasonConferenceEnded            ReasonConferenceEnded
+	Reason                           string
+}
+
+func (c ConfrenceCallEnd) Validate() error {
+	switch {
+	case !IsValid(c.StatusCallbackEvent):
+		return fmt.Errorf("event StatusCallbackEvent invalid got='%s'", c.StatusCallbackEvent)
+
+	case c.StatusCallbackEvent == StatusConferenceEnd && c.ReasonConferenceEnded == "":
+		return fmt.Errorf("event ReasonConferenceEnded empty")
+
+	case c.StatusCallbackEvent == StatusConferenceEnd && !IsValid(c.ReasonConferenceEnded):
+		return fmt.Errorf("event ReasonConferenceEnded invalid got='%s'", c.ReasonConferenceEnded)
+	}
+
+	return nil
+}
+
+type ConfrenceCallAnnouncement struct {
+	ConferenceSID            string `json:"ConferenceSid"`
+	FriendlyName             string
+	AccountSID               string `json:"AccountSid"`
+	SequenceNumber           uint
+	Timestamp                TimeRFC1123Z
+	StatusCallbackEvent      ConferenceStatus
+	CallSID                  *string `json:"CallSid"`
+	Muted                    *bool
+	Hold                     *bool
+	Coaching                 *bool
+	EndConferenceOnExit      *bool
+	StartConferenceOnEnter   *bool
+	ReasonAnnouncementFailed *string
+	AnnounceURL              *string `json:"AnnounceUrl"`
+}
+
+func (c ConfrenceCallAnnouncement) Validate() error {
+	switch {
+	case !IsValid(c.StatusCallbackEvent):
+		return fmt.Errorf("event StatusCallbackEvent invalid got='%s'", c.StatusCallbackEvent)
+	}
+
+	return nil
 }

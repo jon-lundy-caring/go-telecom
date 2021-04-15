@@ -19,37 +19,37 @@ type testDecodeCase struct {
 	err       string
 }
 
-func TestConfrenceCallEvent(t *testing.T) {
+func TestConfrenceCallEvents(t *testing.T) {
 	tests := []testDecodeCase{
 		{
-			container: func() events.Validator { return &events.ConfrenceCallEvent{} },
+			container: func() events.Validator { return &events.ConfrenceCall{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&muted=true&StatusCallbackEvent=participant-mute&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSid=CA1234",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"participant-mute","CallSid":"CA1234","Muted":true}`),
 		},
 		{
-			container: func() events.Validator { return &events.ConfrenceCallEvent{} },
+			container: func() events.Validator { return &events.ConfrenceCallEnd{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&StatusCallbackEvent=conference-end&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSidEndingConference=SID1234&ParticipantLabelEndingConference=PID1234&ReasonConferenceEnded=conference-ended-via-api&Reason=ended+by+host",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-end","CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","ReasonConferenceEnded":"conference-ended-via-api","Reason":"ended by host"}`),
 		},
 		{
-			container: func() events.Validator { return &events.ConfrenceCallEvent{} },
+			container: func() events.Validator { return &events.ConfrenceCallAnnouncement{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&StatusCallbackEvent=announcement-fail&CallSid=CA1234&muted=true&Hold=false&Coaching=false&EndConferenceOnExit=true&StartConferenceOnEnter=false&ReasonAnnouncementFailed=timeout&AnnounceUrl=http://some.url/file.mp4",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"announcement-fail","CallSid":"CA1234","Muted":true,"Hold":false,"Coaching":false,"EndConferenceOnExit":true,"StartConferenceOnEnter":false,"ReasonAnnouncementFailed":"timeout","AnnounceUrl":"http://some.url/file.mp4"}`),
 		},
 		{
-			container: func() events.Validator { return &events.ConfrenceCallEvent{} },
+			container: func() events.Validator { return &events.ConfrenceCallEnd{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&StatusCallbackEvent=conference-endXX&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSidEndingConference=SID1234&ParticipantLabelEndingConference=PID1234&ReasonConferenceEnded=conference-ended-via-api&Reason=ended+by+host",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-endXX","CallSid":"CA1234","Muted":true,"CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","ReasonConferenceEnded":"conference-ended-via-api","Reason":"ended by host"}`),
-			err:       `unknown events.ConferenceEventStatus value: conference-endXX`,
+			err:       `unknown events.ConferenceStatus value: conference-endXX`,
 		},
 		{
-			container: func() events.Validator { return &events.ConfrenceCallEvent{} },
+			container: func() events.Validator { return &events.ConfrenceCallEnd{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&StatusCallbackEvent=conference-end&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSidEndingConference=SID1234&ParticipantLabelEndingConference=PID1234&ReasonConferenceEnded=conference-ended-via-apiXX&Reason=ended+by+host",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-end","CallSid":"CA1234","Muted":true,"CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","ReasonConferenceEnded":"conference-ended-via-apiXX","Reason":"ended by host"}`),
 			err:       `unknown events.ReasonConferenceEnded value: conference-ended-via-apiXX`,
 		},
 		{
-			container: func() events.Validator { return &events.ConfrenceCallEvent{} },
+			container: func() events.Validator { return &events.ConfrenceCallEnd{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&StatusCallbackEvent=conference-end&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSidEndingConference=SID1234&ParticipantLabelEndingConference=PID1234&Reason=ended+by+host",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-end","CallSid":"CA1234","Muted":true,"CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","Reason":"ended by host"}`),
 			err:       `event ReasonConferenceEnded empty`,
