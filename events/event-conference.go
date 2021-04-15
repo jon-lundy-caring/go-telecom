@@ -1,6 +1,7 @@
 package events
 
 import (
+	"encoding"
 	"fmt"
 )
 
@@ -14,13 +15,21 @@ All Events:
 	Timestamp
 	StatusCallbackEvent
 
-end:
+join leave mute hold speaker: (type ConfrenceCall)
+	CallSid
+	Muted
+	Hold
+	Coaching
+	EndConferenceOnExit
+	StartConferenceOnEnter
+
+end: (type ConfrenceCallEnd)
 	CallSidEndingConference
 	ParticipantLabelEndingConference
 	ReasonConferenceEnded
 	Reason
 
-announcement:
+announcement: (type ConfrenceCallAnnouncement)
 	CallSid
 	Muted
 	Hold
@@ -30,20 +39,15 @@ announcement:
 	ReasonAnnouncementFailed
 	AnnounceUrl
 
-
-join leave mute hold speaker
-	CallSid
-	Muted
-	Hold
-	Coaching
-	EndConferenceOnExit
-	StartConferenceOnEnter
 */
 
+// ConferenceStatus is an Enum indicating the state of the conference call.
 type ConferenceStatus string
 
 var _ Validator = (*ConferenceStatus)(nil)
+var _ encoding.TextUnmarshaler = (*ConferenceStatus)(nil)
 
+// ConferenceStatus Enumerations
 const (
 	StatusConferenceEnd          ConferenceStatus = "conference-end"
 	StatusConferenceStart        ConferenceStatus = "conference-start"
@@ -59,6 +63,7 @@ const (
 	StatusAnnouncementFail       ConferenceStatus = "announcement-fail"
 )
 
+// Validate checks that the current value matches one of the allowed enums.
 func (es ConferenceStatus) Validate() error {
 	switch es {
 	case StatusConferenceEnd,
@@ -78,6 +83,7 @@ func (es ConferenceStatus) Validate() error {
 	return fmt.Errorf("unknown %T value: %s", es, es)
 }
 
+// UnmarshalText implements the TextUnmarshaler interface.
 func (es *ConferenceStatus) UnmarshalText(text []byte) (err error) {
 	check := ConferenceStatus(text)
 
@@ -90,9 +96,11 @@ func (es *ConferenceStatus) UnmarshalText(text []byte) (err error) {
 	return nil
 }
 
+// ReasonConferenceEnded is an Enum indicating the reason the conference call ended.
 type ReasonConferenceEnded string
 
 var _ Validator = (*ReasonConferenceEnded)(nil)
+var _ encoding.TextUnmarshaler = (*ConferenceStatus)(nil)
 
 const (
 	ReasonEndedViaAPI                    ReasonConferenceEnded = "conference-ended-via-api"
@@ -102,6 +110,7 @@ const (
 	ReasonParticipantLeftWithEndOnExit   ReasonConferenceEnded = "participant-with-end-conference-on-exit-left"
 )
 
+// Validate checks that the current value matches one of the allowed enums.
 func (r ReasonConferenceEnded) Validate() error {
 	switch r {
 	case ReasonEndedViaAPI,
@@ -114,6 +123,7 @@ func (r ReasonConferenceEnded) Validate() error {
 	return fmt.Errorf("unknown %T value: %s", r, r)
 }
 
+// UnmarshalText implements the TextUnmarshaler interface.
 func (r *ReasonConferenceEnded) UnmarshalText(text []byte) (err error) {
 	check := ReasonConferenceEnded(text)
 
@@ -126,6 +136,7 @@ func (r *ReasonConferenceEnded) UnmarshalText(text []byte) (err error) {
 	return nil
 }
 
+// ConferenceCall is the generic struct for handling common events.
 type ConfrenceCall struct {
 	ConferenceSID          string `json:"ConferenceSid"`
 	FriendlyName           string
@@ -141,6 +152,9 @@ type ConfrenceCall struct {
 	StartConferenceOnEnter *bool   `json:",omitempty"`
 }
 
+var _ Validator = (*ConfrenceCall)(nil)
+
+// Validate checks that the current value matches one of the allowed enums.
 func (c ConfrenceCall) Validate() error {
 	switch {
 	case !IsValid(c.StatusCallbackEvent):
@@ -150,6 +164,7 @@ func (c ConfrenceCall) Validate() error {
 	return nil
 }
 
+// ConfrenceCallEnd is for confrence-end events.
 type ConfrenceCallEnd struct {
 	ConferenceSID                    string `json:"ConferenceSid"`
 	FriendlyName                     string
@@ -163,6 +178,9 @@ type ConfrenceCallEnd struct {
 	Reason                           string
 }
 
+var _ Validator = (*ConfrenceCallEnd)(nil)
+
+// Validate checks that the current value matches one of the allowed enums.
 func (c ConfrenceCallEnd) Validate() error {
 	switch {
 	case !IsValid(c.StatusCallbackEvent):
@@ -178,6 +196,7 @@ func (c ConfrenceCallEnd) Validate() error {
 	return nil
 }
 
+// ConfrenceCallAnnouncement is for confrence-announcement events.
 type ConfrenceCallAnnouncement struct {
 	ConferenceSID            string `json:"ConferenceSid"`
 	FriendlyName             string
@@ -195,6 +214,9 @@ type ConfrenceCallAnnouncement struct {
 	AnnounceURL              *string `json:"AnnounceUrl"`
 }
 
+var _ Validator = (*ConfrenceCallAnnouncement)(nil)
+
+// Validate checks that the current value matches one of the allowed enums.
 func (c ConfrenceCallAnnouncement) Validate() error {
 	switch {
 	case !IsValid(c.StatusCallbackEvent):

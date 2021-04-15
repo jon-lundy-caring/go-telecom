@@ -54,6 +54,18 @@ func TestConfrenceCallEvents(t *testing.T) {
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-end","CallSid":"CA1234","Muted":true,"CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","Reason":"ended by host"}`),
 			err:       `event ReasonConferenceEnded empty`,
 		},
+		{
+			container: func() events.Validator { return &events.Recording{} },
+			form:      "RecordingSid=RID1234&ConferenceSid=SID1234&AccountSid=AID1234&RecordingUrl=http://example.com/file.mp4&RecordingStatus=completed&RecordingDuration=876&RecordingChannels=1&RecordingStartTime=Mon, 02 Jan 2006 15:04:05 -0700&RecordingSource=Conference",
+			json:      []byte(`{"AccountSid":"AID1234","ConferenceSid":"SID1234","RecordingSid":"RID1234","RecordingUrl":"http://example.com/file.mp4","RecordingStatus":"completed","RecordingDuration":876,"RecordingChannels":1,"RecordingStartTime":"Mon, 02 Jan 2006 15:04:05 -0700","RecordingSource":"Conference"}`),
+		},
+		{
+			container: func() events.Validator { return &events.Recording{} },
+			form:      "RecordingSid=RID1234&ConferenceSid=SID1234&AccountSid=AID1234&RecordingUrl=http://example.com/file.mp4&RecordingStatus=completedXX&RecordingDuration=876&RecordingChannels=1&RecordingStartTime=Mon, 02 Jan 2006 15:04:05 -0700&RecordingSource=Conference",
+			json:      []byte(`{"AccountSid":"AID1234","ConferenceSid":"SID1234","RecordingSid":"RID1234","RecordingUrl":"http://example.com/file.mp4","RecordingStatus":"completedXX","RecordingDuration":876,"RecordingChannels":1,"RecordingStartTime":"Mon, 02 Jan 2006 15:04:05 -0700","RecordingSource":"Conference"}`),
+			err:       `unknown events.RecordingStatus value: completedXX`,
+
+		},
 	}
 
 	testDecodeFromQueryAndJSON(t, tests)
