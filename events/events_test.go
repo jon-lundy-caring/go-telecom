@@ -21,54 +21,54 @@ type testDecodeCase struct {
 
 func TestConfrenceCallEvents(t *testing.T) {
 	tests := []testDecodeCase{
-		{
+		{ // 0
 			container: func() events.Validator { return &events.ConfrenceCall{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&muted=true&StatusCallbackEvent=participant-mute&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSid=CA1234",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"participant-mute","CallSid":"CA1234","Muted":true}`),
 		},
-		{
+		{ // 1
 			container: func() events.Validator { return &events.ConfrenceCallEnd{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&StatusCallbackEvent=conference-end&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSidEndingConference=SID1234&ParticipantLabelEndingConference=PID1234&ReasonConferenceEnded=conference-ended-via-api&Reason=ended+by+host",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-end","CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","ReasonConferenceEnded":"conference-ended-via-api","Reason":"ended by host"}`),
 		},
-		{
+		{ // 2
 			container: func() events.Validator { return &events.ConfrenceCallAnnouncement{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&StatusCallbackEvent=announcement-fail&CallSid=CA1234&muted=true&Hold=false&Coaching=false&EndConferenceOnExit=true&StartConferenceOnEnter=false&ReasonAnnouncementFailed=timeout&AnnounceUrl=http://some.url/file.mp4",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"announcement-fail","CallSid":"CA1234","Muted":true,"Hold":false,"Coaching":false,"EndConferenceOnExit":true,"StartConferenceOnEnter":false,"ReasonAnnouncementFailed":"timeout","AnnounceUrl":"http://some.url/file.mp4"}`),
 		},
-		{
+		{ // 3
 			container: func() events.Validator { return &events.ConfrenceCallEnd{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&StatusCallbackEvent=conference-endXX&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSidEndingConference=SID1234&ParticipantLabelEndingConference=PID1234&ReasonConferenceEnded=conference-ended-via-api&Reason=ended+by+host",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-endXX","CallSid":"CA1234","Muted":true,"CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","ReasonConferenceEnded":"conference-ended-via-api","Reason":"ended by host"}`),
 			err:       `unknown events.ConferenceStatus value: conference-endXX`,
 		},
-		{
+		{ // 4
 			container: func() events.Validator { return &events.ConfrenceCallEnd{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&StatusCallbackEvent=conference-end&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSidEndingConference=SID1234&ParticipantLabelEndingConference=PID1234&ReasonConferenceEnded=conference-ended-via-apiXX&Reason=ended+by+host",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-end","CallSid":"CA1234","Muted":true,"CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","ReasonConferenceEnded":"conference-ended-via-apiXX","Reason":"ended by host"}`),
 			err:       `unknown events.ReasonConferenceEnded value: conference-ended-via-apiXX`,
 		},
-		{
+		{ // 5
 			container: func() events.Validator { return &events.ConfrenceCallEnd{} },
 			form:      "ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&StatusCallbackEvent=conference-end&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSidEndingConference=SID1234&ParticipantLabelEndingConference=PID1234&Reason=ended+by+host",
 			json:      []byte(`{"ConferenceSid":"SID1234","FriendlyName":"call-name","AccountSid":"AID1234","SequenceNumber":0,"Timestamp":"Mon, 02 Jan 2006 15:04:05 -0700","StatusCallbackEvent":"conference-end","CallSid":"CA1234","Muted":true,"CallSidEndingConference":"SID1234","ParticipantLabelEndingConference":"PID1234","Reason":"ended by host"}`),
 			err:       `event ReasonConferenceEnded empty`,
 		},
-		{
+		{ // 6
 			container: func() events.Validator { return &events.Recording{} },
 			form:      "RecordingSid=RID1234&ConferenceSid=SID1234&AccountSid=AID1234&RecordingUrl=http://example.com/file.mp4&RecordingStatus=completed&RecordingDuration=876&RecordingChannels=1&RecordingStartTime=Mon, 02 Jan 2006 15:04:05 -0700&RecordingSource=Conference",
 			json:      []byte(`{"AccountSid":"AID1234","ConferenceSid":"SID1234","RecordingSid":"RID1234","RecordingUrl":"http://example.com/file.mp4","RecordingStatus":"completed","RecordingDuration":876,"RecordingChannels":1,"RecordingStartTime":"Mon, 02 Jan 2006 15:04:05 -0700","RecordingSource":"Conference"}`),
 		},
-		{
+		{ // 7
 			container: func() events.Validator { return &events.Recording{} },
 			form:      "RecordingSid=RID1234&ConferenceSid=SID1234&AccountSid=AID1234&RecordingUrl=http://example.com/file.mp4&RecordingStatus=completedXX&RecordingDuration=876&RecordingChannels=1&RecordingStartTime=Mon, 02 Jan 2006 15:04:05 -0700&RecordingSource=Conference",
 			json:      []byte(`{"AccountSid":"AID1234","ConferenceSid":"SID1234","RecordingSid":"RID1234","RecordingUrl":"http://example.com/file.mp4","RecordingStatus":"completedXX","RecordingDuration":876,"RecordingChannels":1,"RecordingStartTime":"Mon, 02 Jan 2006 15:04:05 -0700","RecordingSource":"Conference"}`),
 			err:       `unknown events.RecordingStatus value: completedXX`,
-
 		},
 	}
 
 	testDecodeFromQueryAndJSON(t, tests)
+	testInferFromQuery(t, tests)
 }
 
 func testDecodeFromQueryAndJSON(t *testing.T, tests []testDecodeCase) {
@@ -120,6 +120,36 @@ func testDecodeFromQueryAndJSON(t *testing.T, tests []testDecodeCase) {
 			is.NoErr(err)
 			is.Equal(string(j), string(tt.json))
 		}
+	}
+}
+
+func testInferFromQuery(t *testing.T, tests []testDecodeCase) {
+	t.Helper()
+
+	is := is.New(t)
+
+	for i, tt := range tests {
+		if tt.err != "" {
+			t.Logf("InferFromQuery Test %d - skip", i)
+			continue
+		}
+
+		t.Logf("InferFromQuery Test %d", i)
+
+		// convert form data into url.Values
+		v, err := url.ParseQuery(tt.form)
+		is.NoErr(err)
+
+		// Testing Decode from Query
+		var do events.Event = tt.container()
+		err = events.DecodeFromQuery(v, do)
+		is.NoErr(err)
+
+		// Testing Infer from Query
+		io, err := events.InferFromQuery(v)
+		is.NoErr(err)
+
+		is.Equal(io, do)
 	}
 }
 
