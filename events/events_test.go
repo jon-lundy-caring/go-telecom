@@ -2,6 +2,7 @@ package events_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strings"
 	"testing"
@@ -17,6 +18,15 @@ type testDecodeCase struct {
 	form      string
 	json      []byte
 	err       string
+}
+
+func ExampleInferFromQuery() {
+	query := `ConferenceSid=SID1234&FriendlyName=call-name&AccountSid=AID1234&muted=true&StatusCallbackEvent=participant-mute&Timestamp=Mon, 02 Jan 2006 15:04:05 -0700&CallSid=CA1234`
+	values, _ := url.ParseQuery(query)
+	event, _ := events.InferFromQuery(values)
+
+	fmt.Printf("Type: %T", event)
+	// Output: Type: *events.ConfrenceCall
 }
 
 func TestConfrenceCallEvents(t *testing.T) {
